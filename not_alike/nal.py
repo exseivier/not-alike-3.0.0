@@ -77,6 +77,7 @@ def search(genome, database_file, comment, config_file):
         sptSeqs.writeNoHideToFile(out_split)
     else:
         print('A split-genome file was found!!!')
+        sptSeqs = BS.loadDNASeqs(out_split)
 
     CMD.copy_file(out_split, input_split)
 
@@ -111,8 +112,12 @@ def search(genome, database_file, comment, config_file):
                             qcov, task, num_cores)
 
             print('Updating input_split')
-            lkdl_headers = BS.loadLkdList('blast_out/out_blast')
+            print('Loading blast output qseqids')
+            lkdl_headers = BS.loadLkdList('blast_out/out.blast')
+            print('Filtering Bioseqs')
+            print(dir(sptSeqs))
             sptSeqs.filterBioseq(lkdl_headers)
+            print('Writting non-hidden sequences')
             sptSeqs.writeNoHideToFile(input_split)
 
         print(f'{name} search strategy finished')

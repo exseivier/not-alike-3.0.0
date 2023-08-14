@@ -472,14 +472,16 @@ def do_blast(query, db_file, out_blast, evalue, idt, qcov, task, num_cores):
 
     FHIN = open(out_blast, 'r')
     FHOUT = open('tmp.txt', 'w')
-
+    print(f'Changing {out_blast}...')
     p = sup.Popen(['sed', '/^$/d; s/^/>/g'], stdin = FHIN, stdout = FHOUT)
     p.communicate()
     p.kill()
     FHIN.close()
     FHOUT.close()
-
+    print(f'Moving tmp.txt to {out_blast}')
     p = sup.Popen(['mv', 'tmp.txt', out_blast])
+    p.communicate()
+    p.kill()
 
 def select_sequences(in_file, hd_file, quite_opposite):
     """

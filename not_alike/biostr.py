@@ -118,11 +118,11 @@ class DNAstuffs():
         """
         try:
             libc.writeNoHideToFile(self.a_ptr, outfile.encode())
-            return True
+#            return True
         except Exception as e:
             print(f'Gess what! Something went wrong in writeNoHideToFile!')
             print(f'Because of: {e}')
-            return False
+#            return False
 
     def filterBioseq(self, lkdList_heads):
         """
@@ -171,11 +171,9 @@ class splitBioString(DNAstuffs):
     """
 
     def __init__(self, seqs, size, step):
-        self.size = size
-        self.step = step
+
         self.a_ptr = ct.POINTER(DNA)
         self.a_ptr = libc.splitBioString(seqs.getObject(), size, step)
-        libc
         self.is_empty = False
 
     def __str__(self):
