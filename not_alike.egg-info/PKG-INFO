@@ -84,5 +84,5 @@ unzip not-alike-main.zip
 
 cd not-alike-main
 
-sudo pip3 install dist/Not-Alike-0.0.1.tar.gz
+python3 -m pip3 install --global-option=build_ext dist/not-alike-3.0.0.tar.gz
 ```
