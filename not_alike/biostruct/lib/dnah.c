@@ -5,6 +5,20 @@
 #include <string.h>
 #include "./dnah.h"
 
+
+void sub_space_by_uderscore(char* str)
+{
+	int i = 0;
+	while (str[i] != '\0')
+	{
+		if (str[i] == ' ')
+		{
+			str[i] = '_';
+		}
+		i++;
+	}
+}
+
 void remove_returnc(char* str)
 {
 	int slen = strlen(str);
@@ -180,6 +194,7 @@ struct DNA* splitBioString(struct DNA* seqs, int size, int step)
 		
 		for(int j = seqs->start[i]; j < seqs->end[i]; j = j+step)
 		{
+			sub_space_by_uderscore(seqs->ids[i]);
 			sprintf(header_buffer, "%s_%d", seqs->ids[i], itemCount);
 			sptSeqs->ids[itemCount] = strdup(header_buffer);
 			sptSeqs->start[itemCount] = j;

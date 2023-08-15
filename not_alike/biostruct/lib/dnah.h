@@ -54,4 +54,7 @@ void writeNoHideToFile(struct DNA* bs, char* outfile);
 //	Samples sequences from DNA structure and wrties them into file.
 void sampleSeqs(struct DNA* bs, int perc, char* outfile);
 
+//	Subtitutes spaces by underscores in char* str.
+void sub_space_by_underscore(char* str);
+
 #endif

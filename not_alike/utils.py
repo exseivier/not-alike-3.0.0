@@ -1,3 +1,4 @@
+from sys import exit
 import os
 import subprocess as sup
 import pandas as pd
@@ -472,16 +473,30 @@ def do_blast(query, db_file, out_blast, evalue, idt, qcov, task, num_cores):
 
     FHIN = open(out_blast, 'r')
     FHOUT = open('tmp.txt', 'w')
-    print(f'Changing {out_blast}...')
-    p = sup.Popen(['sed', '/^$/d; s/^/>/g'], stdin = FHIN, stdout = FHOUT)
-    p.communicate()
+    
+    p = sup.Popen(['sed', '/^$/d; s/^/>/g'], stdin = FHIN, stdout = sup.PIPE)
+    q = sup.Popen(['sort'], stdin = p.stdout, stdout = sup.PIPE)
+    r = sup.Popen(['uniq'], stdin = q.stdout, stdout = FHOUT)
+    out, err = r.communicate()
+    if err != None:
+        print(err)
+        print(f'Crashing not-alike at this very line of code...')
+        exit(1)
     p.kill()
+    q.kill()
+    r.kill()
     FHIN.close()
     FHOUT.close()
-    print(f'Moving tmp.txt to {out_blast}')
-    p = sup.Popen(['mv', 'tmp.txt', out_blast])
-    p.communicate()
-    p.kill()
+
+#    p = sup.Popen(['sed', '/^$/d; s/^/>/g'], stdin = FHIN, stdout = FHOUT)
+#    p.communicate()
+#    p.kill()
+#    FHIN.close()
+#    FHOUT.close()
+#    print(f'Moving tmp.txt to {out_blast}')
+    s = sup.Popen(['mv', 'tmp.txt', out_blast])
+    s.communicate()
+    s.kill()
 
 def select_sequences(in_file, hd_file, quite_opposite):
     """
@@ -720,7 +735,7 @@ def loggin_data(pid, genome, database_file, window_size, step_size, config_file,
                         + name + '\t' \
                         + comment + '\t' \
                         + str(num_core) + '\t' \
-                        + str(quite_opposite) + '\t' + \
+                        + str(quite_opposite) + '\t' \
                         + date + '\n')
             FHIN.close()
     else:
