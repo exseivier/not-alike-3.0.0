@@ -15,12 +15,12 @@ class Build(build_ext):
 
 
 setup(
-    name='not-alike',
+    name='not-alike3',
     version='3.0.0',
     author='Javier Montalvo',
     author_email='buitrejma@gmail.com',
-    py_modules=['not_alike.nal', 'not_alike.utils'],
-    packages=['not_alike'],
+    py_modules=['not_alike3.nal', 'not_alike3.utils'],
+    packages=['not_alike3'],
     python_requires='>=3.9',
     description='Command pipeline that finds not alike regions of query genome compared to at least one genome form a huge list of different genomes.',
     long_description = open('README.md', 'r').read(),
@@ -31,12 +31,12 @@ setup(
             'build_ext': Build
         },
     data_files = [
-            ('lib/python3.11/site-packages/not_alike/biostruct', ['not_alike/biostruct/libdnah.so'])
+            ('lib/python3.11/site-packages/not_alike3/biostruct', ['not_alike3/biostruct/libdnah.so'])
         ],
     include_package_data=True,
     entry_points = {
         'console_scripts' : [
-                'not-alike=not_alike.nal:main'
+                'not-alike3=not_alike3.nal:main'
                 ]
             },
     classifiers = [

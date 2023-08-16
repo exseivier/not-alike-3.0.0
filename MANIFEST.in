@@ -1,8 +1,8 @@
-include not_alike/biostruct/Makefile
-include not_alike/biostruct/lib/dnah.c
-include not_alike/biostruct/lib/dnah.h
-include not_alike/biostruct/README.txt
-include not_alike/biostruct/libdnah.so
-include not_alike/Makefile
+include not_alike3/biostruct/Makefile
+include not_alike3/biostruct/lib/dnah.c
+include not_alike3/biostruct/lib/dnah.h
+include not_alike3/biostruct/README.txt
+include not_alike3/biostruct/libdnah.so
+include not_alike3/Makefile
 include change.log
 include Makefile

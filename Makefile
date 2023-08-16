@@ -1,3 +1,3 @@
 
 all:
-	cd not_alike &&	make all
+	cd not_alike3 && make all
