@@ -16,6 +16,9 @@ Classifier: Programming Language :: Python :: 3.9
 Classifier: Topic :: Scientific/Engineering :: Bio-Informatics
 Requires-Python: >=3.9
 License-File: LICENSE
+Requires-Dist: click
+Requires-Dist: pandas
+Requires-Dist: biopython
 
 # Not-Alike pipeline
 

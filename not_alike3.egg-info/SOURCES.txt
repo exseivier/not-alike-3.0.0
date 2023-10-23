@@ -17,5 +17,6 @@ not_alike3.egg-info/requires.txt
 not_alike3.egg-info/top_level.txt
 not_alike3/biostruct/Makefile
 not_alike3/biostruct/README.txt
+not_alike3/biostruct/libdnah.so
 not_alike3/biostruct/lib/dnah.c
 not_alike3/biostruct/lib/dnah.h
