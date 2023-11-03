@@ -28,9 +28,9 @@ This pipeline identifies genomic regions which are the most dissimilar compared 
 
 ## Introduction
 
-This commands pipeline finds unique dissimilar regions of the genome of interest by mean of interative sequence comparison between all posible fragments of size "ws" at each step size "ss" of the genome. It is written in Python language and uses external bioinformatic tools such as: blastn, hisat2, samtools, stringtie and gffread. Also it uses the following python packages: click, os, random and subprocess that handles the communication with python and the external tools. This commands pipeline works with datasets downloaded from NCBI, thus it is needed to install datasets and dataformat NCBI tools to manipulate genomes database obtained from NCBI datasets. As we pointed out above, it has three steps.
+This commands pipeline finds unique dissimilar regions of the genome of interest by mean of interative sequence comparison between all posible fragments of size "window size" at each step size "step size" of the genome. It is written in Python language and uses external bioinformatic tools such as: blastn, hisat2, samtools, stringtie and gffread. Also it uses the following python packages: click, os, random and subprocess that handles the communication with python and the external tools. This commands pipeline works with datasets downloaded from NCBI, thus it is needed to install datasets and dataformat NCBI tools to manipulate genomes database obtained from NCBI datasets. As we pointed out above, it has three steps.
 
-**Split genome step**. In this step the genome of interest is split into fragments of defined size (ws) with a sliding window method that cuts fragments at each step of determined size (ss). In the **iterative searching step**, fragments are used as query to search the genomes database, genome by genome, and fragments that hit a subsequence of the searched genome are elimineated form fragments file. This procedure is performed iterativelly until the end of genomes database. And the final step, the **mapping & assembly**. In this step the remained fragments are subject to be mapped to reference genome, which is the same genome where fragments come from, with hisat2, samtools and stringtie. The resulting GTF file contains the coordinates of the assembled fragments. Those assembled fragments are the dissimilar regions.
+**Split genome step**. In this step the genome of interest is split into fragments of defined size (window size) with a sliding window method that cuts fragments at each step of determined size (step size). In the **iterative searching step**, fragments are used as query to search the genomes database, genome by genome, and fragments that hit a subsequence of the searched genome are elimineated form fragments file. This procedure is performed iterativelly until the end of genomes database. And the final step, the **mapping & assembly**. In this step the remained fragments are subject to be mapped to reference genome, which is the same genome where fragments come from, with hisat2, samtools and stringtie. The resulting GTF file contains the coordinates of the assembled fragments. Those assembled fragments are the dissimilar regions.
 
 
 ## Usage
@@ -38,22 +38,76 @@ This commands pipeline finds unique dissimilar regions of the genome of interest
 To ask for help.
 
 ```bash
-not-alike --help
+not-alike3 --help
+
+Usage: not-alike3 [OPTIONS] COMMAND [ARGS]...
+
+  Not-Alike: Command pipeline that identifies dissimilar regions of a target
+  genome by comparing it to a genomes database.
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  assm-stats      Calculates assembly statistics such as: Mean, Median,...
+  db-makeblast    Builds a BLAST_DB (version 5) database files
+  db-makefile     Creates the database text file which contains the...
+  search          Searches for not alike fragments in query genome
+  search-primers  Selects the best fitted primer sequences based on input...
+  show-db         Shows metadata of database [accession number, organism...
+  show-exp        Shows information about epxeriments stored in the...
 ```
 
 To ask for help for every command.
 
 ```bash
-not-alike <command> --help
+not-alike3 <command> --help
 ```
 
-Task execution.
+Build database. Database path is where FASTA genomes folders and the json files of metadata are.
 
 ```bash
-not-alike search -g test/seqs/Cgla.genome.fasta -db test/db/noCgla2.txt -c 'Leave a comment encolsed by single quotes' --config-file <file.toml>
+not-alike3 db-makeblast -db /path/to/database
 ```
 
-This pipeline requires two input files, one is the fasta file of the genome of interest (or query genome), and the another is a file with the names and path of the BLAST DB formated files of the genomes are and that are wanted to be in the database. This file must be inside the folder that stores all BLAST DB formatted files. The file with the genome of interest is set with the -g flag and the database file is set with the -db flag. E-value, identity percentage, query HSP coverage pewrcentage, evalue, window size, step size, number of cores parameters are set in configuration TOML file.
+Prepare the database text file. It contains the sorted path and names of genomes file
+
+```bash
+not-alike3 db-makefile -qg query/target_genome.fasta -db /path/to/database/ -e ACCESSION,...,ACCESSION | -i ACCESSION,...,ACCESSION -o database_text_file.txt
+```
+
+Search task execution.
+
+```bash
+not-alike search -g test/seqs/target_genome.fasta -db /path/to/database/database_text_file.txt -c 'Leave a comment encolsed by single quotes' --config-file <file.toml>
+```
+
+Design primers.
+
+```bash
+not-alike3 search-primers --input-file unique_dissimilar_regions.fasta --opt-size 20 --opt-gc 55 --opt-tm 58 --product-size 100-500 --template-size-range 1000-2000
+```
+
+Example of TOML configuration file
+
+```bash
+# Commentaries
+[global]
+num_of_cores = 2
+quite_opposite = false
+
+[[split]]
+window_size = 500
+step_size = 50
+
+[[search]]
+quite_opposite = false
+name = 'test2'
+task = 'blastn'
+identity = 50
+qcov = 50
+evalue = 100
+```
 
 ## Commands
 
@@ -69,6 +123,10 @@ Creates a text file with the path and names where BLAST\_DB file are separated b
 
 This command finds unique dissimilar regions of a genome of interest by means of iterative sequence comparison analysis.
 
+### search-primers
+
+This command designs PCR primers using unique dissimilar regions identified by **search** command in the genome of interest as templates.
+
 ### show-database
 
 This command transforms the assembly\_data\_report.jsonl file, metadata downloaded from NCBI datasets, to TSV format file with dataformat NCBI tool and prints on screen the accession number, organism name and ID of organism taxon.
@@ -77,8 +135,52 @@ This command transforms the assembly\_data\_report.jsonl file, metadata download
 
 It reads the 'experiments.log' log file stored in log folder and prints on screen the information contained in it which are information about parameters values, process ID and the date of experiments previously done.
 
-## Download & install
+## Results explanation
 
+Results folder should look like this.
+
+```bash
+.
+├── blast_db
+├── blast_out
+│   └── out.blast
+├── gtfs
+│   ├── nal_frags.4745693059.fasta
+│   ├── nal_frags.4745693059.gtf
+│   └── tmp.gff
+├── ht2_idx
+│   ├── GCF_000002545.3_ASM254v2_genomic.1.ht2
+│   ├── GCF_000002545.3_ASM254v2_genomic.2.ht2
+│   ├── GCF_000002545.3_ASM254v2_genomic.3.ht2
+│   ├── GCF_000002545.3_ASM254v2_genomic.4.ht2
+│   ├── GCF_000002545.3_ASM254v2_genomic.5.ht2
+│   ├── GCF_000002545.3_ASM254v2_genomic.6.ht2
+│   ├── GCF_000002545.3_ASM254v2_genomic.7.ht2
+│   └── GCF_000002545.3_ASM254v2_genomic.8.ht2
+├── log
+│   ├── experiments.log
+│   └── stats.log
+├── mapping
+│   ├── nal_frags.4745693059.bam
+│   ├── nal_frags.4745693059.sam
+│   └── nal_frags.4745693059.sort.bam
+├── query
+│   ├── GCF_000002545.3_ASM254v2_genomic.fna
+│   └── GCF_000002545.3_ASM254v2_genomic.fna.fai
+├── split_out
+│   ├── GCF_000002545.3_ASM254v2_genomic_split_500_50.fasta
+│   ├── input_split.3496921943.fasta
+│   ├── input_split.4745693059.fasta
+│   └── tmp.split
+├── toml
+    ├── blastn_50.toml
+    ├── megablast_15.toml
+    └── megablast_50.toml
+```
+
+Results folder looks like that tree topology. In the folder blast\_out contains a file called out.blast which temporarily stores the blast output of iterative searching. The gtfs forlder contains the unque dissimilar regions of a genome of interest identified with **search** command in FASTA and GTF format. The ht2\_idx folder contains the index files for hisat2 of the reference genome which is the genome of interest. The log folder contains the experiments and assembly statistics logs. The mapping folder contains the sam and bam files of mapped fragments. The query forlder contains the fasta genome of interest. The split\_out folder contains the fasta split genome of interest and the input files which are used in the iterative searching. The toml folder contains the TOML configuration files. In the begin it is needed to create query and toml folders to store the FASTA genome of interest and the TOML configuration files. It is also possible to allocate the database folder inside results forlder, or it can be outside.
+
+## Download & install
 
 #### Download the zipped file at [exseivier's github](https://www.github.com/exseivier/not-alike3-3.0.0)
 

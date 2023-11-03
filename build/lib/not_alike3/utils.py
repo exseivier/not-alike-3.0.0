@@ -382,10 +382,21 @@ def nl50(data):
 def __select_seqs_by_size(seqs, size_range):
     size_range = [int(size) for size in size_range.split('-')]
     seqsf = {}
-    for head, seq in seqs.items():
-        if len(seq) >= size_range[0] \
-        and len(seq) <= size_range[1]:
-            seqsf[head] = seq
+    # XXX: ERROR!
+    # This line produces an error that says:
+    # for head, seq in seqs.items():
+    #                  ^^^^^^^^^^
+    #AttributeError: 'list' object has no attribute 'items'
+    # I will change it to seqs: because it is a list
+    #
+#    for head, seq in seqs.items():
+#        if len(seq) >= size_range[0] \
+#        and len(seq) <= size_range[1]:
+#            seqsf[head] = seq
+    for seq in seqs:
+        if len(seq.seq) >= size_range[0] \
+        and len(seq.seq) <= size_range[1]:
+            seqsf[seq.id] = str(seq.seq)
 
     return seqsf
 
@@ -397,9 +408,14 @@ def __create_input_primer(seqs, options, input_file):
     input_primer3_file = '.'.join(input_file.split('.')[:-1]) + '.inp3'
     with open(input_primer3_file, 'w+') as FH:
         for head, seq in seqs.items():
-            options['SEQUENCE_ID'] = head[1:]
+            options['SEQUENCE_ID'] = head
             options['SEQUENCE_TEMPLATE'] = seq
             for key, value in options.items():
+                # XXX: Error!
+                # value variable produces an error.
+                # It is a Seq object, not a string.
+                # I will transform Seq object to string from the begining.
+                # in __select_seqs_by_size function.
                 FH.write(key + '=' + value + '\n')
 
             FH.write('=\n')
@@ -816,24 +832,40 @@ def find_primers(input_file, opt_size, opt_gc, opt_tm, product_size, template_si
     print('Primer3 input file done')
     
     outputFileName = '.'.join(inputFileName.split('.')[:-1]) + '.outp3'
+
+    #   Refactoring code. Worked pretty good
+
+    with open(outputFileName, "w+") as FHOUT, open(inputFileName, "r") as FHIN:
+        p = sup.Popen(['primer3_core'], \
+                        stdin = FHIN, \
+                        stdout = FHOUT, \
+                        stderr = sup.PIPE)
+        err = p.communicate()
+        if err != '':
+            print(err)
+
+        p.kill
+        FHIN.close()
+        FHOUT.close()
     
-    FHOUT =  open(outputFileName, 'w+')
-    FHIN = open(inputFileName, 'r')
+#    FHOUT =  open(outputFileName, 'w+')
+#    FHIN = open(inputFileName, 'r')
        
-    p = sup.Popen(['primer3_core'], \
-                    stdin = FHIN, \
-                    stdout = FHOUT, \
-                    stderr = sup.PIPE)
+#    p = sup.Popen(['primer3_core'], \
+#                    stdin = FHIN, \
+#                    stdout = FHOUT, \
+#                    stderr = sup.PIPE)
         
-    err = p.communicate()
+#    err = p.communicate()
         
-    if err != '':
-        print(err)
+#    if err != '':
+#        print(err)
     
-    p.kill()
+#    p.kill()
     
-    FHOUT.close()
-    FHIN.close()
+#    FHOUT.close()
+#    FHIN.close()
+
 
 
 def parsing_toml(config_file):
