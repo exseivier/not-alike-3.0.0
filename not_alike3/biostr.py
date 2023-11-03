@@ -14,7 +14,18 @@ import ctypes as ct
 #   BASIC SCIENCES DEPARTMENT.
 #
 
-file_path = os.path.join(sys.prefix, 'lib/python3.11/site-packages/not_alike3/biostruct')
+#  TODO:    Problem is the version of python in this path string.
+#           Has to be changed to correct the version depending on the current version
+#           the final user is using.
+#           Suggestion
+#               PyVersion = "python" + ".".join(sys.version.split(" ")[0].split(".")[:2])
+#               pathString = f'lib/{PyVersion}/site-packages/not_alike3/biostruct'
+#               file_path = os.path.join(sys.prefix, pathString)
+#   XXX: Have to test it. No tested yet.
+
+PyVersion = "python" + ".".join(sys.version.split(" ")[0].split(".")[:2])
+pathString = f'lib/{PyVersion}/site-packages/not_alike3/biostruct'
+file_path = os.path.join(sys.prefix, pathString)
 
 libc = ct.CDLL(f'{file_path}/libdnah.so')
 
