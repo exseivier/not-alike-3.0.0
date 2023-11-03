@@ -103,7 +103,7 @@ This command finds unique dissimilar regions of a genome of interest by means of
 
 ### search-primers
 
-This command design PCR primers over unique dissimilar regions identified by **search** command.
+This command designs PCR primers using unique dissimilar regions identified by **search** command in the genome of interest as templates.
 
 ### show-database
 
@@ -113,8 +113,52 @@ This command transforms the assembly\_data\_report.jsonl file, metadata download
 
 It reads the 'experiments.log' log file stored in log folder and prints on screen the information contained in it which are information about parameters values, process ID and the date of experiments previously done.
 
-## Download & install
+## Results explanation
 
+Results folder should look like this.
+
+```bash
+.
+├── blast_db
+├── blast_out
+│   └── out.blast
+├── gtfs
+│   ├── nal_frags.4745693059.fasta
+│   ├── nal_frags.4745693059.gtf
+│   └── tmp.gff
+├── ht2_idx
+│   ├── GCF_000002545.3_ASM254v2_genomic.1.ht2
+│   ├── GCF_000002545.3_ASM254v2_genomic.2.ht2
+│   ├── GCF_000002545.3_ASM254v2_genomic.3.ht2
+│   ├── GCF_000002545.3_ASM254v2_genomic.4.ht2
+│   ├── GCF_000002545.3_ASM254v2_genomic.5.ht2
+│   ├── GCF_000002545.3_ASM254v2_genomic.6.ht2
+│   ├── GCF_000002545.3_ASM254v2_genomic.7.ht2
+│   └── GCF_000002545.3_ASM254v2_genomic.8.ht2
+├── log
+│   ├── experiments.log
+│   └── stats.log
+├── mapping
+│   ├── nal_frags.4745693059.bam
+│   ├── nal_frags.4745693059.sam
+│   └── nal_frags.4745693059.sort.bam
+├── query
+│   ├── GCF_000002545.3_ASM254v2_genomic.fna
+│   └── GCF_000002545.3_ASM254v2_genomic.fna.fai
+├── split_out
+│   ├── GCF_000002545.3_ASM254v2_genomic_split_500_50.fasta
+│   ├── input_split.3496921943.fasta
+│   ├── input_split.4745693059.fasta
+│   └── tmp.split
+├── toml
+    ├── blastn_50.toml
+    ├── megablast_15.toml
+    └── megablast_50.toml
+```
+
+Results folder looks like that tree topology. In the folder blast\_out contains a file called out.blast which temporarily stores the blast output of iterative searching. The gtfs forlder contains the unque dissimilar regions of a genome of interest identified with **search** command in FASTA and GTF format. The ht2\_idx folder contains the index files for hisat2 of the reference genome which is the genome of interest. The log folder contains the experiments and assembly statistics logs. The mapping folder contains the sam and bam files of mapped fragments. The query forlder contains the fasta genome of interest. The split\_out folder contains the fasta split genome of interest and the input files which are used in the iterative searching. The toml folder contains the TOML configuration files. In the begin it is needed to create query and toml folders to store the FASTA genome of interest and the TOML configuration files. It is also possible to allocate the database folder inside results forlder, or it can be outside.
+
+## Download & install
 
 #### Download the zipped file at [exseivier's github](https://www.github.com/exseivier/not-alike3-3.0.0)
 
