@@ -834,7 +834,7 @@ def find_primers(input_file, opt_size, opt_gc, opt_tm, product_size, template_si
     outputFileName = '.'.join(inputFileName.split('.')[:-1]) + '.outp3'
 
     #   Refactoring code. Worked pretty good
-    print('Designing primers')
+
     with open(outputFileName, "w+") as FHOUT, open(inputFileName, "r") as FHIN:
         p = sup.Popen(['primer3_core'], \
                         stdin = FHIN, \
@@ -847,66 +847,7 @@ def find_primers(input_file, opt_size, opt_gc, opt_tm, product_size, template_si
         p.kill
         FHIN.close()
         FHOUT.close()
-
-    print('Extracting and sorting list of primers')
-    ID = None
-    PP = None
-    S1 = None
-    S2 = None
-    SE = None
-
-    with open("tmp.gtf", "w+") as FHOUT, open(outputFileName, "r") as FHIN:
-        for line in FHIN:
-            line = line.strip()
-            key, value = line.split("=")
-            if key == "SEQUENCE_ID":
-                ID = value
-                continue
-            key = key.split("_")
-            if len(key) < 4:
-                continue
-            if key[1] == "PAIR" and key[3] == "PENALTY":
-                PP = value
-                SE = key[2]
-                continue
-            
-            if key[1] == "LEFT" and key[3] == "SEQUENCE":
-                S1 = value
-                continue
-
-            if key[1] == "RIGHT" and key[3] == "SEQUENCE":
-                S2 = value
-                continue
-            
-            if ID != None and PP != None and S1 != None and S2 != None and SE != None:
-                FHOUT.write(f'{ID}\t{SE}\t{S1}\t{S2}\t{PP}\n')
-                PP = None
-                S1 = None
-                S2 = None
-                SE = None
-                continue
-        FHOUT.close()
-        FHIN.close()
     
-    with open(".".join(outputFileName.split(".")[:-1]) + ".sort.prm", "w+") as FHOUT:
-        p = sup.Popen(['sort', '-nk', '5', 'tmp.gtf'], \
-                        stdout = FHOUT, \
-                        stderr = sup.PIPE)
-        err = p.communicate()
-        if err != '':
-            print(err)
-        p.kill()
-        p = sup.Popen(["rm", "tmp.gtf"],\
-                        stdout = sup.PIPE,\
-                        stderr = sup.PIPE)
-        out, err = p.communicate()
-        print(out)
-        print(err)
-        
-        FHOUT.close()
-
-
-
 #    FHOUT =  open(outputFileName, 'w+')
 #    FHIN = open(inputFileName, 'r')
        
