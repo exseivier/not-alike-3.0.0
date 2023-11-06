@@ -118,13 +118,15 @@ It reads the 'experiments.log' log file stored in the log folder and prints on s
 The results folder should look like this.
 
 ```bash
-.
 ├── blast_db
 ├── blast_out
 │   └── out.blast
 ├── gtfs
 │   ├── nal_frags.4745693059.fasta
 │   ├── nal_frags.4745693059.gtf
+│   ├── nal_frags.4745693059.inp3
+│   ├── nal_frags.4745693059.outp3
+│   ├── nal_frags.4745693059.sort.prm
 │   └── tmp.gff
 ├── ht2_idx
 │   ├── GCF_000002545.3_ASM254v2_genomic.1.ht2
@@ -150,13 +152,13 @@ The results folder should look like this.
 │   ├── input_split.3496921943.fasta
 │   ├── input_split.4745693059.fasta
 │   └── tmp.split
-├── toml
-    ├── blastn_50.toml
-    ├── megablast_15.toml
-    └── megablast_50.toml
+└── toml
+    ├── blastn_50.toml
+    ├── megablast_15.toml
+    └── megablast_50.toml
 ```
 
-The results folder looks like that tree topology. The folder blast\_out contains a file called out.blast which temporarily stores the blast output of iterative searching. The gtfs folder contains the unique dissimilar regions of a genome of interest identified with **search** command in FASTA and GTF format. The ht2\_idx folder contains the index files for hisat2 of the reference genome which is the genome of interest. The log folder contains the experiments and assembly statistics logs. The mapping folder contains the sam and bam files of mapped fragments. The query folder contains the fasta genome of interest. The split\_out folder contains the fasta split genome of interest and the input files that are used in iterative searching. The toml folder contains the TOML configuration files. In the beginning, it is needed to create query and toml folders to store the FASTA genome of interest and the TOML configuration files. It is also possible to allocate the database folder inside the results folder, or it can be outside.
+The results folder looks like that tree topology. The folder *blast\_out* contains a file called out.blast which temporarily stores the blast output of iterative searching. The *gtfs* folder contains the unique dissimilar regions of a genome of interest identified with **search** command in FASTA and GTF format. This folder also contains the output files of the primer designing task done with the search-primer command (file format INP3, OUTP3 and SORT.PRM). The *ht2\_idx* folder contains the index files for hisat2 of the reference genome which is the genome of interest. The *log* folder contains the experiments and assembly statistics logs. The *mapping* folder contains the SAM and BAM files of mapped fragments. The *query* folder contains the FASTA genome of interest. The *split\_out* folder contains the FASTA split genome of interest and the input files that are used in iterative searching. The *toml* folder contains the TOML configuration files. In the beginning, it is needed to create query and toml folders to store the FASTA genome of interest and the TOML configuration files. It is also possible to allocate the database folder inside the results folder, or it can be outside.
 
 ## Download & install
 
