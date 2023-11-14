@@ -173,4 +173,5 @@ python3 -m pip3 install dist/not-alike3-3.0.0.tar.gz
 ```
 
 ## Watch the YouTube video that explains download, installation and usage instructions.
+[Not-alike3 installation and usage guide](https://youtu.be/rwltheAmX0Y?si=mJIva2j6Fm6KnqbZ)
 
