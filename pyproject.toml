@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools >= 65", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "not-alike3"
+version = "3.0.0"
+authors = [
+	{name = "Javier Montalvo-Arredondo",
+	email = "buitrejma@gmail.com"}
+]
+
+author_email = "buitrejma@gmail.com"
+description = "Not-alike3 commands pipeline finds unique dissimilar regions in a genome of interest by means of whole-genome systematic sequence comparison"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {
+	text = "GNU General Public License v3 or later (GPLv3+)",
+	file = "LICENSE"
+}
+classifiers = [
+	"Development Status :: 1 - PreAlpha",
+	"Environment :: Console",
+	"Intended Audience :: End Users/Desktop",
+	"Intended Audience :: Science/Research",
+	"License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+	"Operating System :: POSIX :: Linux",
+	"Programming Language :: Pyhton :: 3.10",
+	"Topic :: Scientific/Engineering :: Bio-Informatics",
+]
+
+dependencies = [
+	"biopython>=1.81",
+	"click>=8.1",
+	"numpy>=1.26",
+	"pandas>=2.1",
+]
+
+[project.urls]
+source = "https://github.com/exseivier/not-alike-3.0.0"
+
+[project.scripts]
+not-alike3 = "not_alike3.nal:main"
