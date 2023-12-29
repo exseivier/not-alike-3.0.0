@@ -169,7 +169,7 @@ unzip main.zip
 
 cd not-alike3-3.0.0-main
 
-python3 -m pip3 install dist/not-alike3-3.0.0.tar.gz
+python3 -m pip install dist/not-alike3-3.0.0.tar.gz
 ```
 
 ## Watch the YouTube video that explains download, installation and usage instructions.
