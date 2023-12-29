@@ -1,4 +1,4 @@
-# Not-Alike pipeline
+# Not-Alike pipeline: application in molecular diagnostics for pathogen microorganism detection
 
 ## Overview
 
