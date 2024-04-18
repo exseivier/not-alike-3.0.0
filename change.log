@@ -1,9 +1,17 @@
 
-2023-08-02 <Monty J.>
-	* This version will have some functions to manipulate DNA sequences written in C so library to improve performance at loading, spliting, filter sequences and writing them to file.
 
-	* This version contains the functions to sort database based on a dirty and quick BLAST analysis. This sorts database genomes from most similar to the most dissimilar genome compared to query genome.
+03/13, 2024.
 
-	* This version also includes the ability to take the toml configuration file to pass arguments to pipeline.
+New version. 3.1.0
+
+contains an additional special function called search-only.
+Example:
+	not-alike3 search-only \
+	-g split_out/input_split.{PID}.fasta \
+	-db dbase/data/NoSfru.txt \
+	--config-file toml/blast_strategy.toml \
+	-c "Leave a comment"
+
+It takes the almost the same arguments as is in search command, but instead of take the query fasta genome, it takes the intpu_split file and skips the split sequences procedure to go directly to blast searchings.
 
 

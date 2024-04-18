@@ -49,6 +49,7 @@ def __load_seqs(filename):
 
     with open(filename, 'r') as FHIN:
         seqs = list(SeqIO.parse(FHIN, 'fasta'))
+        FHIN.close()
 
     return seqs
 
@@ -127,7 +128,7 @@ def __select_seqs(seqs, heads, quite_opposite):
     """
     seqs = SeqIO.to_dict(seqs)
     lsq = len(seqs)
-    print(str(lsq) + ' current sequences')
+    print(f'{str(lsq)} current sequences')
     heads = list(set(heads))
     lhd = len(heads)
     if quite_opposite:
@@ -207,7 +208,7 @@ def copy_file(source, destiny):
     p.communicate()
     p.kill()
     if os.path.exists(destiny):
-        print(source + ' was copied to ' + destiny)
+        print(f'{source} was copied to {destiny}')
     else:
         print('Copy process | Error!!!')
 
@@ -218,7 +219,7 @@ def rm_file(path):
     if os.path.exists(path):
         os.remove(path)
     else:
-        print(path + ' not found.')
+        print(f'{path} not found.')
 
 ###################################################################
 
@@ -250,7 +251,7 @@ def __index(ref_genome, fname_suffix):
 
     p = sup.Popen(['hisat2-build', \
                 ref_genome, \
-                'ht2_idx/' + fname_suffix], \
+                f'ht2_idx/{fname_suffix}'], \
                 stdout = sup.PIPE, \
                 stderr = sup.PIPE)
     p.communicate()
@@ -263,11 +264,11 @@ def __map(ref_genome, input_split, fname_suffix):
     """
 
     pid = input_split.split('.')[-2]
-    mapping_out_sam = 'mapping/nal_frags.' + pid + '.sam'
-    mapping_out_bam = 'mapping/nal_frags.' + pid + '.bam'
-    mapping_out_sbam = 'mapping/nal_frags.' + pid + '.sort.bam'
+    mapping_out_sam = f'mapping/nal_frags.{pid}.sam'
+    mapping_out_bam = f'mapping/nal_frags.{pid}.bam'
+    mapping_out_sbam = f'mapping/nal_frags.{pid}.sort.bam'
     p = sup.Popen(['hisat2', \
-                '-x', 'ht2_idx/' + fname_suffix, \
+                '-x', f'ht2_idx/{fname_suffix}', \
                 '--no-temp-splicesite', \
                 '--no-spliced-alignment', \
                 '-f', \
@@ -302,9 +303,9 @@ def __map(ref_genome, input_split, fname_suffix):
 ######      HELPER FUNCTION FOR ASSEMBLY
 
 def __do_assembly(pid):
-    p = sup.Popen(['stringtie', 'mapping/nal_frags.' + str(pid) + '.sort.bam', \
+    p = sup.Popen(['stringtie', f'mapping/nal_frags.{str(pid)}.sort.bam', \
                     '-L', '-s', '1', '-g', '50', \
-                    '-o', 'gtfs/nal_frags.' + str(pid) + '.gtf'], \
+                    '-o', f'gtfs/nal_frags.{str(pid)}.gtf'], \
                     stdout = sup.PIPE, \
                     stderr = sup.PIPE)
 
@@ -318,8 +319,8 @@ def __do_assembly(pid):
 
 def __extract_sequences(genome, pid):
     tmp_gff_file = 'gtfs/tmp.gff'
-    fasta_out = 'gtfs/nal_frags.' + str(pid) + '.fasta'
-    p = sup.Popen(['gffread', 'gtfs/nal_frags.' + str(pid) + '.gtf', \
+    fasta_out = f'gtfs/nal_frags.{str(pid)}.fasta'
+    p = sup.Popen(['gffread', f'gtfs/nal_frags.{str(pid)}.gtf', \
                     '-o', tmp_gff_file], \
                     stdout = sup.PIPE, \
                     stderr = sup.PIPE)
@@ -405,7 +406,7 @@ def __create_input_primer(seqs, options, input_file):
         Creates the primer3 core input file with fasta sequences using the
         options choosen by the user.
     '''
-    input_primer3_file = '.'.join(input_file.split('.')[:-1]) + '.inp3'
+    input_primer3_file = f'{".".join(input_file.split(".")[:-1])}.inp3'
     with open(input_primer3_file, 'w+') as FH:
         for head, seq in seqs.items():
             options['SEQUENCE_ID'] = head
@@ -416,7 +417,7 @@ def __create_input_primer(seqs, options, input_file):
                 # It is a Seq object, not a string.
                 # I will transform Seq object to string from the begining.
                 # in __select_seqs_by_size function.
-                FH.write(key + '=' + value + '\n')
+                FH.write(f'{key}={value}\n')
 
             FH.write('=\n')
 
@@ -487,29 +488,24 @@ def do_blast(query, db_file, out_blast, evalue, idt, qcov, task, num_cores):
         print(err)
     p.kill()
 
-    FHIN = open(out_blast, 'r')
-    FHOUT = open('tmp.txt', 'w')
-    
-    p = sup.Popen(['sed', '/^$/d; s/^/>/g'], stdin = FHIN, stdout = sup.PIPE)
-    q = sup.Popen(['sort'], stdin = p.stdout, stdout = sup.PIPE)
-    r = sup.Popen(['uniq'], stdin = q.stdout, stdout = FHOUT)
-    out, err = r.communicate()
-    if err != None:
-        print(err)
-        print(f'Crashing not-alike at this very line of code...')
-        exit(1)
-    p.kill()
-    q.kill()
-    r.kill()
-    FHIN.close()
-    FHOUT.close()
+    try:
+        with open(out_blast, 'r') as FHIN, open('tmp.txt', 'w') as FHOUT:
+            p = sup.Popen(['sed', '/^$/d; s/^/>/g'], stdin = FHIN, stdout = sup.PIPE)
+            q = sup.Popen(['sort'], stdin = p.stdout, stdout = sup.PIPE)
+            r = sup.Popen(['uniq'], stdin = q.stdout, stdout = FHOUT)
+            out, err = r.communicate()
+            if err != None:
+                print(err)
+                print(f'Crashing not-alike3 at this very line of code...')
+                exit(1)
+            p.kill()
+            q.kill()
+            r.kill()
+            FHIN.close()
+            FHOUT.close()
+    except Exception as e:
+        print(f'Error: utils.py -> do_blast function\n{e}')
 
-#    p = sup.Popen(['sed', '/^$/d; s/^/>/g'], stdin = FHIN, stdout = FHOUT)
-#    p.communicate()
-#    p.kill()
-#    FHIN.close()
-#    FHOUT.close()
-#    print(f'Moving tmp.txt to {out_blast}')
     s = sup.Popen(['mv', 'tmp.txt', out_blast])
     s.communicate()
     s.kill()
@@ -598,31 +594,34 @@ def dataformat_tsv(assembly_report, assembly_report_tsv):
 #    print(assembly_report)
 #    print(assembly_report_tsv)
     fields = 'accession,organism-name,organism-tax-id'
-    with open(assembly_report_tsv, 'w') as FHOUT:
-        p = sup.Popen(['dataformat', 'tsv', 'genome', \
-                        '--inputfile', assembly_report, \
-                        '--fields', fields, \
-                        '--force'],
-                        stdout = FHOUT,
-                        stderr = sup.PIPE)
-        out, err = p.communicate()
-#        print('hello world! ' + str(len(err)))
-        p.kill()
-        FHOUT.close()
+    try:
+        with open(assembly_report_tsv, 'w') as FHOUT:
+            p = sup.Popen(['dataformat', 'tsv', 'genome', \
+                            '--inputfile', assembly_report, \
+                            '--fields', fields, \
+                            '--force'],
+                            stdout = FHOUT,
+                            stderr = sup.PIPE)
+            out, err = p.communicate()
+#            print('hello world! ' + str(len(err)))
+            p.kill()
+            FHOUT.close()
+    except Exception as e:
+        print(f'Error: utils.py -> dataformat_tsv function\n{e}')
 
 def make_db(db_path):
     """
         Formats FASTA files to BLAST_DB format
     """
     
-    dataset_catalog = db_path + '/dataset_catalog.json'
+    dataset_catalog = f'{db_path}/dataset_catalog.json'
     assemblies = pd.read_json(dataset_catalog)
     assemblies = assemblies['assemblies']
     for assembly in assemblies:
         for fastafile in assembly['files']:
             if fastafile['fileType'] == 'GENOMIC_NUCLEOTIDE_FASTA':
-                inputfile = db_path + '/' + fastafile['filePath']
-                outputfile = '.'.join(inputfile.split('.')[:-1]) + '.db'
+                inputfile = f'{db_path}/{fastafile["filePath"]}'
+                outputfile = f'{".".join(inputfile.split(".")[:-1])}.db'
                 p = sup.Popen(['makeblastdb', \
                             '-in', inputfile, \
                             '-dbtype', 'nucl', \
@@ -644,8 +643,8 @@ def make_txtfiledb(query_genome, db_path, exclude, include, out):
         db_path is the path where BLAST_DB files are.
     """
     
-    catalog_file = db_path + '/dataset_catalog.json'
-    output_file = db_path + '/' + out
+    catalog_file = f'{db_path}/dataset_catalog.json'
+    output_file = f'{db_path}/{out}'
     catalog = pd.read_json(catalog_file)
     assemblies = catalog['assemblies']
     out_files = []

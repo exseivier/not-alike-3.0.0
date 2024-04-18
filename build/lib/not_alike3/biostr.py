@@ -40,8 +40,24 @@ class DNA(ct.Structure):
                 ('ids', ct.POINTER(ct.c_char_p)),
                 ('start', ct.POINTER(ct.c_int)),
                 ('end', ct.POINTER(ct.c_int)),
-                ('seq_len', ct.POINTER(ct.c_int)),
-                ('hide', ct.POINTER(ct.c_int))
+                ('hide', ct.POINTER(ct.c_int)),
+                ('lhand', ct.c_int),
+                ('rhand', ct.c_int),
+                ('num_items', ct.c_int),
+                ('memAllocSeq', ct.c_int),
+                ('numItemsAlloc', ct.c_int),
+                ('size', ct.c_int)
+                ]
+
+class Node(ct.Structure):
+    """
+        Node structure
+    """
+    pass
+
+Node._fields_ = [
+                ('header', ct.c_char_p),
+                ('next', ct.POINTER(Node))
                 ]
 
 class lkdList(ct.Structure):
@@ -51,28 +67,57 @@ class lkdList(ct.Structure):
     pass
 
 lkdList._fields_ = [
-                ('header', ct.c_char_p),
-                ('next', ct.POINTER(lkdList))
-                ]
+                    ('head', ct.POINTER(Node)),
+                    ('tail', ct.POINTER(Node))
+                    ]
+# 
+#   Biostr library
+#
 
-libc.loadDNASeqs.restype = ct.POINTER(DNA)
-libc.loadDNASeqs.argtypes = {ct.c_char_p}
+libc.Biostr_init.argtypes = [ct.POINTER(DNA)]
+libc.Biostr_init_custom.argtypes = [ct.POINTER(DNA), ct.c_ulonglong]
+libc.Biostr_load_file.argtypes = [ct.POINTER(DNA), ct.c_char_p]
 
-libc.freeLkdList.argtypes = [ct.POINTER(lkdList)]
+libc.Biostr_slice.restype = ct.POINTER(DNA)
+libc.Biostr_slice.agrtypes = [ct.POINTER(DNA), ct.c_int, ct.c_int]
 
-libc.freeDNA.argtypes = [ct.POINTER(DNA)]
+libc.Biostr_write_to_file.argtypes = [ct.POINTER(DNA), ct.c_char_p]
 
-libc.writeNoHideToFile.argtypes =[ct.POINTER(DNA)]
+libc.Biostr_filter.argtypes = [ct.POINTER(DNA), ct.POINTER(lkdList)]
 
-libc.splitBioString.restype = ct.POINTER(DNA)
-libc.splitBioString.argtypes = [ct.POINTER(DNA), ct.c_int, ct.c_int]
+libc.Biostr_free.argtypes = [ct.POINTER(DNA)]
 
-libc.loadLines_lkdList.restype = ct.POINTER(lkdList)
-libc.loadLines_lkdList.argtypes = [ct.c_char_p]
+libc.Biostr_print.argtypes = [ct.POINTER(DNA)]
 
-libc.filterBioseq.argtypes = [ct.POINTER(DNA), ct.POINTER(lkdList)]
+libc.Biostr_sample.argtypes = [ct.POINTER(DNA), ct.c_int, ct.c_char_p]
 
-libc.sampleSeqs.argtypes = [ct.POINTER(DNA), ct.c_int, ct.c_char_p]
+#
+#   Linked list library
+#
+
+libc.create_linked_list.restype = ct.POINTER(lkdList)
+
+libc.create_node.restype = ct.POINTER(Node)
+libc.create_node.argtypes = [ct.c_char_p]
+
+libc.add_node.argtypes = [ct.POINTER(lkdList), ct.c_char_p]
+
+libc.free_linked_list.argtypes = [ct.POINTER(lkdList)]
+
+libc.free_node.argtypes = [ct.POINTER(Node)]
+
+libc.insert_at_position.argtypes = [ct.POINTER(lkdList), ct.c_char_p, ct.c_int]
+
+libc.print_linked_list.argtypes = [ct.POINTER(lkdList)]
+
+libc.load_to_linkedList.argtypes = [ct.POINTER(lkdList), ct.c_char_p]
+
+#
+#   FileIO libary
+#
+
+libc.open_file.restype = ct.c_char_p
+libc.open_file.argtypes = [ct.c_char_p]
 
 class DNAstuffs():
 
@@ -89,7 +134,7 @@ class DNAstuffs():
             print("Object is empty")
             return None
         try:
-            libc.freeDNA(self.a_ptr)
+            libc.Biostr_free(self.a_ptr)
             print("Free dynamic allocated memory for DNA!")
         except Exception as e:
             print(f'Something went worng!: {e}')
@@ -128,7 +173,7 @@ class DNAstuffs():
             Writes no-hided sequences to file.
         """
         try:
-            libc.writeNoHideToFile(self.a_ptr, outfile.encode())
+            libc.Biostr_write_to_file(self.a_ptr, outfile.encode())
 #            return True
         except Exception as e:
             print(f'Gess what! Something went wrong in writeNoHideToFile!')
@@ -141,7 +186,7 @@ class DNAstuffs():
             So that means those sequences had at least a hit in BLASTn search.
         """
         try:
-            libc.filterBioseq(self.a_ptr, lkdList_heads.getObject())
+            libc.Biostr_filter(self.a_ptr, lkdList_heads.getObject())
             return True
         except Exception as e:
             print(f'Guess what! Somthing went wrong in filterBioseq!')
@@ -150,9 +195,10 @@ class DNAstuffs():
     def sampleSeqs(self, perc, outfile = 'sampleout.fasta'):
 
         assert perc >= 10, f'A number greater or equal to 10 is expected, got: {perc}'
-    
-        libc.sampleSeqs(self.a_ptr, perc, outfile.encode())
-
+        
+        #   XXX: This function was copied from dnah.c and compiled in new libdnah.so
+        #   XXX: Tested before production.
+        libc.Biostr_sample(self.a_ptr, perc, outfile.encode())
 
 class loadDNASeqs(DNAstuffs):
     """
@@ -163,7 +209,8 @@ class loadDNASeqs(DNAstuffs):
             Initializes the object
         """
         self.a_ptr = ct.POINTER(DNA)
-        self.a_ptr = libc.loadDNASeqs(filename.encode())
+        libc.Biostr_init(self.a_ptr)
+        libc.Biostr_load_file(self.a_ptr, filename.encode())
         self.is_empty = False
 
     def __str__(self):
@@ -184,7 +231,7 @@ class splitBioString(DNAstuffs):
     def __init__(self, seqs, size, step):
 
         self.a_ptr = ct.POINTER(DNA)
-        self.a_ptr = libc.splitBioString(seqs.getObject(), size, step)
+        self.a_ptr = libc.Biostr_slice(seqs.getObject(), size, step)
         self.is_empty = False
 
     def __str__(self):
@@ -206,9 +253,12 @@ class loadLkdList():
             Initializing
         """
         self.lkdl = ct.POINTER(lkdList)
-        self.lkdl = lkdList()
+#        self.lkdl = lkdList()   # Creating a lkdList object isn't needed because it just has
+                                # to recieve the lkdList pointer.
         
-        self.lkdl = libc.loadLines_lkdList(filename.encode())
+        self.lkdl = libc.create_linked_list()
+        libc.load_to_linkedList(self.lkdl, filename.encode())
+
         self.is_empty = False
 
     def __str__(self):
@@ -250,7 +300,7 @@ class loadLkdList():
         """
             Free dynamic allocated memory for a lkdList object instance.
         """
-        libc.freeLkdList(self.lkdl)
+        libc.free_linked_list(self.lkdl)
         print("Free dynamic allocated memory for this lkdList object")
 
 

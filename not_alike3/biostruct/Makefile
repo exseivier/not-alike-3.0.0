@@ -1,12 +1,12 @@
-FLAGS=-Wall -g -fPIC -shared
-LIB=lib
-SRC=dnah.c
-OUT=libdnah.so
+SRC:= $(wildcard lib/*.c)
+OBJ:= $(SRC:.c=.o)
 
-build: $(OUT)
+build: $(OBJ)
+	gcc -Wall -g -o test $(OBJ)
+	gcc -Wall -g -fPIC -shared -o libdnah.so -lm $(OBJ)
 
-$(OUT): $(LIB)/$(SRC)
-	gcc $(FLAGS) -o $(OUT) $(LIB)/$(SRC) -lm
+%.o: %.c
+	gcc -Wall -g -c -o $@ $<
 
-delete:
-	@rm $(OUT)
+clean:
+	rm lib/*.o *.so test

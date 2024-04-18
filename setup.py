@@ -16,15 +16,15 @@ class Build(build_ext):
 
 setup(
     name='not-alike3',
-    version='3.0.0',
+    version='3.1.0',
     author='Javier Montalvo',
     author_email='buitrejma@gmail.com',
     py_modules=['not_alike3.nal', 'not_alike3.utils'],
     packages=['not_alike3'],
     python_requires='>=3.10',
-    description='Command pipeline that finds not alike regions of query genome compared to at least one genome form a huge list of different genomes.',
+    description='Not-alike3 commands pipeline finds unique dissimilar regions in a genome of interest by means of whole-genome systematic sequence comparison.',
     long_description = open('README.md', 'r').read(),
-    install_requires =['click', 'pandas', 'biopython'],
+    install_requires =['click', 'pandas', 'biopython', 'numpy'],
     license = 'GNU General Public License v3 or later (GPLv3+)',
     url='https://www.github.com/exseivier/not-alike3-3.0.0',
 #    cmdclass = {
@@ -40,7 +40,7 @@ setup(
                 ]
             },
     classifiers = [
-        'Development Status :: 1 - Pre-Alpha',
+        'Development Status :: 2 - Alpha',
         'Environment :: Console',
         'Intended Audience :: End Users/Desktop',
         'Intended Audience :: Science/Research',

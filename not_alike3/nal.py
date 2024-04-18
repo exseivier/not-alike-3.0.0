@@ -4,7 +4,8 @@ import click
 #import utils as CMD
 import not_alike3.utils as CMD
 #import biostr as BS
-import not_alike3.biostr as BS
+#import not_alike3.biostr as BS
+from biostr import biostr as BS
 
 @click.group()
 def main():
@@ -57,15 +58,15 @@ def search(genome, database_file, comment, config_file):
 #    quite_opposite = args['global']['quite_opposite']
 
     PID = random.randrange(1, 9999999999)
-    out_split = '.'.join(genome.split('.')[:-1]) + '_split_' + str(window_size) + '_' + str(step_size) + '.fasta'
+    out_split = f'{".".join(genome.split(".")[:-1])}_split_{str(window_size)}_{str(step_size)}.fasta'
     out_split = ''.join(out_split.split('/')[-1])
-    out_split = 'split_out/' + out_split
+    out_split = f'split_out/{out_split}'
 
-    input_split = 'input_split.' + str(PID) + '.fasta'
-    input_split = 'split_out/' + input_split
+    input_split = f'input_split.{str(PID)}.fasta'
+    input_split = f'split_out/{input_split}'
 
-    print(out_split + ' was loaded.')
-    print(input_split + ' was loaded.')
+    print(f'{out_split} was loaded.')
+    print(f'{input_split} was loaded.')
 
     if not CMD.os.path.exists(out_split):
         '''
@@ -77,8 +78,6 @@ def search(genome, database_file, comment, config_file):
         sptSeqs.writeNoHideToFile(out_split)
     else:
         print('A split-genome file was found!!!')
-        #B80. It didn't load DNA Seqs when it founds a split sequences file.
-        # Bug solved.
         sptSeqs = BS.loadDNASeqs(out_split)
 
     CMD.copy_file(out_split, input_split)
@@ -105,7 +104,7 @@ def search(genome, database_file, comment, config_file):
 
         for f in db_files:
             dbf = '.'.join(f.split('.')[:-1]) + '.db'
-            print('Blasting ' + dbf + ' ...')
+            print(f'Blasting {dbf} ...')
             
             CMD.do_blast(input_split, \
                             database_file_path + '/' + dbf, \
@@ -114,11 +113,11 @@ def search(genome, database_file, comment, config_file):
                             qcov, task, num_cores)
 
             print('Updating input_split')
-#            print('Loading blast output qseqids')
+            print('Loading blast output qseqids')
             lkdl_headers = BS.loadLkdList('blast_out/out.blast')
-#            print('Filtering Bioseqs')
+            print('Filtering Bioseqs')
             sptSeqs.filterBioseq(lkdl_headers)
-#            print('Writting non-hidden sequences')
+            print('Writting non-hidden sequences')
             sptSeqs.writeNoHideToFile(input_split)
 
         print(f'{name} search strategy finished')
@@ -134,14 +133,14 @@ def search(genome, database_file, comment, config_file):
         CMD.extseq(genome, PID)
 
         print('Doing assembly stats')
-        CMD.do_assembly_stats('gtfs/nal_frags.' + str(PID) + '.fasta', PID)
+        CMD.do_assembly_stats(f'gtfs/nal_frags.{str(PID)}.fasta', PID)
 
         
         PID = random.randrange(1, 9999999999)
         CMD.copy_file(input_split, 'split_out/tmp.split')
 
-        input_split = 'input_split.' + str(PID) + '.fasta'
-        input_split = 'split_out/' + input_split
+        input_split = f'input_split.{str(PID)}.fasta'
+        input_split = f'split_out/{input_split}'
 
         CMD.copy_file('split_out/tmp.split', input_split)
 

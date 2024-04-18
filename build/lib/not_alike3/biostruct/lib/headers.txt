@@ -1,0 +1,6 @@
+>Seq1_frag_0
+>Seq1_frag_1
+>Seq2_frag_6
+>Seq2_frag_7
+>Seq2_frag_8
+>Seq2_frag_9
