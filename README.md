@@ -1,3 +1,5 @@
+# WARNING! THIS VERSION USES biostr python module EXTERNALLY. It is needed to dwonload the biostr python module from this github repository and install it.
+
 # Not-Alike pipeline: application in molecular diagnostics for pathogen microorganism detection
 
 ## Overview
