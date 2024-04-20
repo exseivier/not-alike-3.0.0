@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/676732758.svg)](https://zenodo.org/doi/10.5281/zenodo.10557733)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10557734.svg)](https://doi.org/10.5281/zenodo.10557734)
 # Not-Alike pipeline: application in molecular diagnostics for pathogen microorganism detection
 
 ## Overview
