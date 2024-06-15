@@ -1,22 +1,10 @@
 #!/usr/bin/env python3
 
-import subprocess
-import sys
 from setuptools import setup
-from setuptools.command.build_ext import build_ext
-
-class Build(build_ext):
-
-    def run(self):
-        protoc_command = ['make', 'all']
-        if subprocess.call(protoc_command) != 0:
-            sys.exit(-1)
-        super().run()
-
 
 setup(
     name='not-alike3',
-    version='3.1.0',
+    version='3.2.45',
     author='Javier Montalvo',
     author_email='buitrejma@gmail.com',
     py_modules=['not_alike3.nal', 'not_alike3.utils'],

@@ -56,15 +56,22 @@ free_node(struct Node* n)
 void
 free_linked_list(struct linkedList* ll)
 {
+	// XXX: Memory corruption. Prevoius node is not free.
+	// XXX: Attempt to free ll->head and ll->tail, causes
+	// XXX: the corruption.
 	struct Node* tmp_node = ll->head;
+	struct Node* before = ll->head;
 	while (NULL != tmp_node)
 	{
 		free(tmp_node->header);
 		tmp_node = tmp_node->next;
+		free(before);
+		before = tmp_node;
 	}
-	free(ll->head);
-	free(ll->tail);
-	free(ll);
+	//free(ll->head);
+	//free(ll->tail);
+	//free(ll);  // Causes Memory corruption in Python when
+	//				loading as dynamic shared library.
 }
 
 void

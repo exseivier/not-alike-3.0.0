@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools >= 65", "setuptools-scm"]
+requires = ["setuptools >= 65", "setuptools-scm", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "not-alike3"
-version = "3.1.0"
+version = "3.2.45"
 authors = [
 	{name = "Javier Montalvo-Arredondo", email = "buitrejma@gmail.com"}
 ]
@@ -31,7 +31,6 @@ dependencies = [
 	"click>=8.1",
 	"numpy>=1.26",
 	"pandas>=2.1",
-	"biostr>=0.0.0"
 ]
 
 [project.urls]

@@ -2,4 +2,3 @@ biopython>=1.81
 click>=8.1
 numpy>=1.26
 pandas>=2.1
-biostr>=0.0.0

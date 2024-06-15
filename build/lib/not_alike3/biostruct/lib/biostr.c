@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "linked_list.h"
 #include "biostr.h"
 
@@ -152,7 +153,7 @@ Biostr_load_file(struct Biostr* bs, const char* input_file)
 			if (bs->rhand >= bs->memAllocSeq)
 				__resize_MemAlloc_Seq(bs, bs->rhand);
 
-			for(int i = 0; i < bs->rhand; i++)
+			for(int i = 0; i < bs->rhand - bs->lhand; i++)
 			{
 				bs->seq[bs->lhand + i] = line[i];
 			}
@@ -224,17 +225,52 @@ Biostr_write_to_file(struct Biostr* bs, char* filename)
 		return;
 	}
 	int i = 0;
-	char* sequence = NULL;
+	unsigned long long int total_len = 0;
+	unsigned long long int sequence_c = 0;
+	unsigned long long int max_mem_alloc_seq = MAX_MEM_ALLOC_SEQ;
+	int header_len = 0;
+	unsigned long int subseq_len = 0;
+	char* sequence = (char*) calloc (max_mem_alloc_seq, sizeof(char));
 	while (NULL != bs->ids[i])
 	{
 		if (bs->hide[i] == 0)
-		{
-			sequence = __extract_sequence(bs, bs->ids[i]);
-			fprintf(FH, "%s\n%s\n", bs->ids[i], sequence);
-			free(sequence);
+		{	// XXX: Writing sequence by sequence to file is slow
+			//      I would prefer to store the sequences into
+			//      an array of chars separated by \n return char.
+			// TODO.
+			//sequence = __extract_sequence(bs, bs->ids[i]);	// Bad implementation (O)**2. Useless.
+
+			header_len = strlen(bs->ids[i]);
+			subseq_len = bs->ends[i] - bs->starts[i];
+			total_len = 2 + total_len + header_len + subseq_len;
+			if (total_len >= max_mem_alloc_seq)
+			{
+				max_mem_alloc_seq = max_mem_alloc_seq * 2;
+				sequence = realloc(sequence, max_mem_alloc_seq * sizeof(char));
+			}
+
+			for (int j = 0; j < header_len; j++)
+			{
+				sequence[sequence_c] = bs->ids[i][j];
+				sequence_c++;
+			}
+			sequence[sequence_c] = '\n';
+			sequence_c++;
+			
+			for (int k = 0; k < subseq_len; k++)
+			{
+				sequence[sequence_c] = bs->seq[bs->starts[i] + k];
+				sequence_c++;
+			}
+			sequence[sequence_c] = '\n';
+			sequence_c++;
+
 		}
 		i++;		
 	}
+
+	fprintf(FH, "%s", sequence);
+	free(sequence);
 	fclose(FH);
 	return;
 }
@@ -293,16 +329,31 @@ void
 Biostr_free(struct Biostr* bs)
 {
 	int i = 0;
+	/*	DEBUGGING
+	printf("Name of first sequence is: %s\n", bs->ids[4]);
+	printf("Sequence: %s\n", bs->seq);
+	printf("First start: %d\n", bs->starts[i]);
+	printf("First end: %d\n", bs->ends[i]);
+	printf("First hide value: %d\n", bs->hide[i]);
+	*/
 	while (NULL != bs->ids[i])
 	{
+		//printf("Freeing id %d - %s\n", i, bs->ids[i]);
 		free(bs->ids[i]);
 		i++;
 	}
+	//printf("Out of while-loop\n");
+	//printf("Freeing ids\n");
 	free(bs->seq);
+	//printf("Freeing seq\n");
 	free(bs->starts);
+	//printf("Freeing starts\n");
 	free(bs->ends);
+	//printf("Freeing ends\n");
 	free(bs->hide);
-	free(bs);
+	//printf("Freeing hide\n");
+	//free(bs);  // Trying to free bs object causes free memory corruption from Python.
+	//printf("Freeing bs\n");
 	return;
 }
 
@@ -340,10 +391,10 @@ Biostr_sample(struct Biostr* bs, int perc, char* outfile)
 		if (randint < perc)
 		{
 			
-			char* seqCarrier = (char*)calloc(sizeof(char), (bs->end[i] - bs->start[i] + 2));
+			char* seqCarrier = (char*)calloc(sizeof(char), (bs->ends[i] - bs->starts[i] + 2));
 			int j = 0;
-			int k = bs->start[i];
-			while (k < bs->end[i]+1)
+			int k = bs->starts[i];
+			while (k < bs->ends[i]+1)
 			{
 				seqCarrier[j] = bs->seq[k];
 				j++;

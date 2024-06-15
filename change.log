@@ -1,17 +1,11 @@
 
 
-03/13, 2024.
+04/08th, 2024.
 
-New version. 3.1.0
+New version. 3.2.45
 
-contains an additional special function called search-only.
-Example:
-	not-alike3 search-only \
-	-g split_out/input_split.{PID}.fasta \
-	-db dbase/data/NoSfru.txt \
-	--config-file toml/blast_strategy.toml \
-	-c "Leave a comment"
+This version does not depend on biostr python module. It is inside the not-alike3
+package version 3.2.45.
 
-It takes the almost the same arguments as is in search command, but instead of take the query fasta genome, it takes the intpu_split file and skips the split sequences procedure to go directly to blast searchings.
-
+it's all folks!
 

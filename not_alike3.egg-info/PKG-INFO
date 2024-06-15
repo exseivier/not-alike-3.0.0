@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: not-alike3
-Version: 3.1.0
+Version: 3.2.45
 Summary: Not-alike3 commands pipeline finds unique dissimilar regions in a genome of interest by means of whole-genome systematic sequence comparison
 Home-page: https://www.github.com/exseivier/not-alike3-3.0.0
 Author: Javier Montalvo
@@ -698,7 +698,8 @@ Requires-Dist: biopython>=1.81
 Requires-Dist: click>=8.1
 Requires-Dist: numpy>=1.26
 Requires-Dist: pandas>=2.1
-Requires-Dist: biostr>=0.0.0
+
+# WARNING!!! THIS VERSION CONTAINS INSIDE THE BIOSTR PYTHON MODULE. IT DOES NOT REQUIRE THE EXTERNAL BIOSTR PYTHON MODULE
 
 # Not-Alike pipeline: application in molecular diagnostics for pathogen microorganism detection
 

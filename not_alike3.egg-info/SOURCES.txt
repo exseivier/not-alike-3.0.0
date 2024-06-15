@@ -1,14 +1,10 @@
 LICENSE
 MANIFEST.in
-Makefile
 README.md
 TODO.txt
 change.log
 pyproject.toml
 setup.py
-dist/not-alike3-3.0.0.tar.gz
-dist/not_alike3-3.0.0-py3-none-any.whl
-not_alike3/Makefile
 not_alike3/__init__.py
 not_alike3/biostr.py
 not_alike3/nal.py
@@ -19,9 +15,8 @@ not_alike3.egg-info/dependency_links.txt
 not_alike3.egg-info/entry_points.txt
 not_alike3.egg-info/requires.txt
 not_alike3.egg-info/top_level.txt
-not_alike3/biostruct/LICENSE
 not_alike3/biostruct/Makefile
-not_alike3/biostruct/README.md
+not_alike3/biostruct/libdnah.so
 not_alike3/biostruct/lib/biostr.c
 not_alike3/biostruct/lib/biostr.h
 not_alike3/biostruct/lib/fileio.c

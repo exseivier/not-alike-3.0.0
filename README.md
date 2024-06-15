@@ -1,4 +1,4 @@
-# WARNING! THIS VERSION USES biostr python module EXTERNALLY. It is needed to dwonload the biostr python module from this github repository and install it.
+# WARNING!!! New version 3.2.45. Code was refactored and biostr module is implemented inside the not-alike3 package.
 
 # Not-Alike pipeline: application in molecular diagnostics for pathogen microorganism detection
 

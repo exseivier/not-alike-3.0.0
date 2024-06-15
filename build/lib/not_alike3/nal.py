@@ -4,8 +4,8 @@ import click
 #import utils as CMD
 import not_alike3.utils as CMD
 #import biostr as BS
-#import not_alike3.biostr as BS
-from biostr import biostr as BS
+import not_alike3.biostr as BS
+#from biostr import biostr as BS
 
 @click.group()
 def main():

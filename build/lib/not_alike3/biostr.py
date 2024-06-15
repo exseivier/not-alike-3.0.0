@@ -21,13 +21,14 @@ import ctypes as ct
 #               PyVersion = "python" + ".".join(sys.version.split(" ")[0].split(".")[:2])
 #               pathString = f'lib/{PyVersion}/site-packages/not_alike3/biostruct'
 #               file_path = os.path.join(sys.prefix, pathString)
-#   XXX: Have to test it. No tested yet.
+#   XXX: Tested OK.
 
 PyVersion = "python" + ".".join(sys.version.split(" ")[0].split(".")[:2])
 pathString = f'lib/{PyVersion}/site-packages/not_alike3/biostruct'
 file_path = os.path.join(sys.prefix, pathString)
 
 libc = ct.CDLL(f'{file_path}/libdnah.so')
+#libc = ct.CDLL(f'/home/jima/projects/Dev/python_apps/biostrc/biostr/biostruct/libdnah.so')
 
 class DNA(ct.Structure):
     """
@@ -136,26 +137,25 @@ class DNAstuffs():
         try:
             libc.Biostr_free(self.a_ptr)
             print("Free dynamic allocated memory for DNA!")
+            self.is_empty = True
+            self.a_ptr = None
         except Exception as e:
             print(f'Something went worng!: {e}')
-
-        self.is_empty = True
 
     def getSeq(self, ids):
         """
             Retrieves a sequence by id
         """
-        if self.is_empty == True:
+        if self.is_empty:
             print("Object is empty")
             return None
         i = 0
         while self.a_ptr.contents.ids[i] != None:
             seq_id = self.a_ptr.contents.ids[i].decode()
-            start = self.a_ptr.contents.start[i]
-            end = self.a_ptr.contents.end[i]
-            print(f'{start}, {end}')
-            seq = self.a_ptr.contents.seq.decode()[start : (end + 1)]
             if seq_id == ids:
+                start = self.a_ptr.contents.start[i]
+                end = self.a_ptr.contents.end[i]
+                seq = self.a_ptr.contents.seq.decode()[start : (end + 1)]
                 return f'{seq_id}\n{seq}\n'
             i += 1
 
@@ -200,22 +200,33 @@ class DNAstuffs():
         #   XXX: Tested before production.
         libc.Biostr_sample(self.a_ptr, perc, outfile.encode())
 
+    def printIt(self):
+        
+        if self.is_empty:
+            print(f'Object is empty')
+        else:
+            libc.Biostr_print(self.a_ptr)
+
 class loadDNASeqs(DNAstuffs):
     """
-        loadDNASeqs objcet
+        loadDNASeqs object
     """
     def __init__(self, filename):
         """
             Initializes the object
         """
-        self.a_ptr = ct.POINTER(DNA)
-        libc.Biostr_init(self.a_ptr)
-        libc.Biostr_load_file(self.a_ptr, filename.encode())
-        self.is_empty = False
+        if os.path.exists(filename) and os.path.isfile(filename):
+            self.a_ptr = DNA()
+            self.a_ptr = ct.pointer(self.a_ptr)
+            libc.Biostr_init(self.a_ptr)
+            libc.Biostr_load_file(self.a_ptr, filename.encode())
+            self.is_empty = False
+        else:
+            print(f'FileIOError: Object creation failure: {filename} was not found')
 
     def __str__(self):
         """
-            Orints info from object
+            Prints info from object
         """
         if self.a_ptr != None:
             return "Object loaded!"
@@ -229,8 +240,9 @@ class splitBioString(DNAstuffs):
     """
 
     def __init__(self, seqs, size, step):
-
-        self.a_ptr = ct.POINTER(DNA)
+        
+        self.a_ptr = DNA()
+        self.a_ptr = ct.pointer(self.a_ptr)
         self.a_ptr = libc.Biostr_slice(seqs.getObject(), size, step)
         self.is_empty = False
 
@@ -252,12 +264,14 @@ class loadLkdList():
         """
             Initializing
         """
-        self.lkdl = ct.POINTER(lkdList)
-#        self.lkdl = lkdList()   # Creating a lkdList object isn't needed because it just has
-                                # to recieve the lkdList pointer.
-        
-        self.lkdl = libc.create_linked_list()
-        libc.load_to_linkedList(self.lkdl, filename.encode())
+
+        if os.path.exists(filename) and os.path.isfile(filename):
+            self.lkdl = lkdList()
+            self.lkdl = ct.pointer(self.lkdl)
+            self.lkdl = libc.create_linked_list()
+            libc.load_to_linkedList(self.lkdl, filename.encode())
+        else:
+            print(f"FileIOError: Object creation failure: {filename} was not found")
 
         self.is_empty = False
 
@@ -269,6 +283,13 @@ class loadLkdList():
             return "Object is loaded!"
         else:
             return "Object is empty!"
+
+    def printIt(self):
+
+        if self.is_empty:
+            print("Object is empty")
+        else:
+            libc.print_linked_list(self.lkdl)
 
 
     def getObject(self):
@@ -285,23 +306,29 @@ class loadLkdList():
         """
             Finds and returns the line where line == head. 
         """
-        tmp_lkdl = ct.POINTER(lkdList)
-        tmp_lkdl = self.lkdl
+        tmp_lkdl = lkdList()
+        tmp_lkdl.head = self.lkdl.contents.head
+        tmp_lkdl.tail = self.lkdl.contents.tail
         while True:
             try:
-                header = tmp_lkdl.contents.header
-                if header.decode() == head:
+                if tmp_lkdl.head.contents.header.decode() == head:
                     return True
-                tmp_lkdl = tmp_lkdl.contents.next
+                tmp_lkdl.head = tmp_lkdl.head.contents.next
             except Exception as e:
+                print(f"FindError: {e}")
                 return False
 
     def freeLkdList(self):
         """
             Free dynamic allocated memory for a lkdList object instance.
         """
-        libc.free_linked_list(self.lkdl)
-        print("Free dynamic allocated memory for this lkdList object")
+        if self.is_empty:
+            print("Linked list object is already empty!")
+        else:
+            libc.free_linked_list(self.lkdl)
+            self.lkdl = None
+            self.is_empty = True
+            print("Free dynamic allocated memory for this lkdList object")
 
 
 def main():
